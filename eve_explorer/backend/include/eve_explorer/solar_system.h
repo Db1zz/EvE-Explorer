@@ -8,18 +8,22 @@
 
 namespace eve_explorer::backend::types {
 struct SolarSystem {
-  Id id;
   std::string name;
-  SecurityStatus security_status;
+  std::string region_name;
+  std::string constellation_name;
   Point position;
+  SecurityStatus security_status;
+  Id solar_system_id;
+  Id region_id;
+  Id constellation_id;
+  Id faction_id;
+  Id sun_type_id;
+  double system_radius;
   // Planets
   //   Moons
   //   Belts
   // Sun
   // Stargates
-  // std::string region_name;
-  // std::string constellation_name;
 };
 }  // namespace eve_explorer::backend::types
-
 #endif  // EVE_EXPLORER_INCLUDE_EVE_EXPLORER_SOLAR_SYSTEM_H_

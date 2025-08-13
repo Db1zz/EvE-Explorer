@@ -3,9 +3,12 @@
 
 namespace eve_explorer::backend::types {
 struct Point {
-	double x;
-	double y;
-	double z;
+  double x;
+  double y;
+  double z;
+
+  Point() = default;
+  Point(double x, double y, double z) : x(x), y(y), z(z) {}
 };
 }  // namespace eve_explorer::backend::types
 

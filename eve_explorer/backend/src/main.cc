@@ -18,6 +18,11 @@ int main() {
     std::vector<eve_explorer::backend::types::SolarSystem> systems =
         db.get_solar_systems();
 
+    std::optional<eve_explorer::backend::types::SolarSystem> ss_opt = db.get_solar_system("Jita");
+    if (ss_opt) {
+      auto& ss = ss_opt.value();
+      std::cout << "System: " << ss.name << " Region: " << ss.region_name << " Constellation: " << ss.constellation_name << std::endl;
+    }
     raylib::Window window(window_width, window_height, "test");
     Camera2D camera = { 0 };
     camera.zoom = 1.0f;
@@ -38,8 +43,8 @@ int main() {
       BeginMode2D(camera);
 
       for (const auto& system : systems) {
-        DrawCircle(system.position.x * MAP_SCALE, -system.position.z * MAP_SCALE,
-                   2, DARKGRAY);
+        DrawCircle(system.position.x * MAP_SCALE,
+                   -system.position.z * MAP_SCALE, 2, DARKGRAY);
       }
       EndMode2D();
       EndDrawing();
