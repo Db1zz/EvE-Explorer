@@ -13,6 +13,7 @@ class IEveUniverseDatabase {
 
   virtual std::optional<types::SolarSystem> get_solar_system(types::Id id) = 0;
   virtual std::optional<types::SolarSystem> get_solar_system(const std::string& name) = 0;
+  virtual std::vector<types::SolarSystem> get_solar_systems() = 0;
 };
 }  // namespace eve_explorer::database
 

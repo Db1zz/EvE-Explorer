@@ -15,8 +15,9 @@ class SQLiteEveUniverseDatabase : public IEveUniverseDatabase {
   ~SQLiteEveUniverseDatabase();
 
   std::optional<types::SolarSystem> get_solar_system(types::Id id) override;
-  std::optional<types::SolarSystem> get_solar_system(
-      const std::string& name) override;
+  std::optional<types::SolarSystem> get_solar_system(const std::string& name) override;
+  std::vector<types::SolarSystem> get_solar_systems() override;
+    
  private:
   struct BaseInfo {
     std::string name;

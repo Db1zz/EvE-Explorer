@@ -41,6 +41,24 @@ std::optional<types::SolarSystem> SQLiteEveUniverseDatabase::get_solar_system(
   return solar_system;
 }
 
+std::vector<types::SolarSystem> SQLiteEveUniverseDatabase::get_solar_systems() {
+    std::vector<types::SolarSystem> systems;
+
+    db_ << "SELECT solarSystemID, solarSystemName, security, x, y, z FROM mapSolarSystems;"
+        >> [&](types::Id id, std::string name, types::SecurityStatus ss, double x, double y, double z){
+          types::SolarSystem solar_system;
+          solar_system.id = id;
+          solar_system.name = name;
+          solar_system.security_status = ss;
+          solar_system.position.x = x;
+          solar_system.position.y = y;
+          solar_system.position.z = z;
+
+          systems.push_back(std::move(solar_system));
+    };
+    return systems;
+}
+
 std::optional<SQLiteEveUniverseDatabase::BaseInfo> SQLiteEveUniverseDatabase::
     query_base_info(const std::string& name) {
   std::optional<BaseInfo> base_info;
