@@ -38,6 +38,7 @@ int main() {
         camera.target.y += 10;
       }
       camera.zoom = expf(logf(camera.zoom) + ((float)GetMouseWheelMove() * 0.1f));
+
       BeginDrawing();
       ClearBackground(RAYWHITE);
       BeginMode2D(camera);

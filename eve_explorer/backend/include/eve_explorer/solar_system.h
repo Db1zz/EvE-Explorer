@@ -19,11 +19,11 @@ struct SolarSystem {
   Id faction_id;
   Id sun_type_id;
   double system_radius;
-  // Planets
-  //   Moons
-  //   Belts
-  // Sun
-  // Stargates
+// Planets
+//   Moons
+//   Belts
+// Sun
+// Stargates
 };
 }  // namespace eve_explorer::backend::types
 #endif  // EVE_EXPLORER_INCLUDE_EVE_EXPLORER_SOLAR_SYSTEM_H_
