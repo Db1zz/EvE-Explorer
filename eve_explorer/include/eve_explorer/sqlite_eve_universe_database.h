@@ -8,7 +8,7 @@
 #include "eve_explorer/ieve_universe_database.h"
 #include "eve_explorer/solar_system.h"
 
-namespace eve_explorer::backend::database {
+namespace eve_explorer::database {
 class SQLiteEveUniverseDatabase : public IEveUniverseDatabase {
  public:
   SQLiteEveUniverseDatabase(const std::string& data_base_path);
@@ -17,6 +17,8 @@ class SQLiteEveUniverseDatabase : public IEveUniverseDatabase {
   std::optional<types::SolarSystem> get_solar_system(
       const std::string& name) override;
   std::vector<types::SolarSystem> get_solar_systems() override;
+  std::vector<types::Stargate> get_solar_system_stargates(
+      types::Id solar_system_id) override;
 
  private:
   struct SolarSystemPopulator {
@@ -39,6 +41,6 @@ class SQLiteEveUniverseDatabase : public IEveUniverseDatabase {
   std::string data_base_path_;
   sqlite::database db_;
 };
-}  // namespace eve_explorer::backend::database
+}  // namespace eve_explorer::database
 
 #endif  // EVE_EXPLORER_BACKEND_INCLUDE_EVE_EXPLORER_SQLITE_EVE_UNIVERSE_DATABASE_H_

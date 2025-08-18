@@ -1,5 +1,7 @@
+eve_explorer/resources/sde/eve_universe_db.sqlite
 build
 .vscode
 TODO.md
-eve_explorer/backend/downloads
-eve_explorer/backend/resources/sde
+eve_explorer/downloads
+eve_explorer/.qmlls.ini
+/**/.DS_Store
