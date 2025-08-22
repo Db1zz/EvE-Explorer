@@ -5,3 +5,5 @@ TODO.md
 eve_explorer/downloads
 eve_explorer/.qmlls.ini
 /**/.DS_Store
+CMakeLists.txt.user
+.gitignore
