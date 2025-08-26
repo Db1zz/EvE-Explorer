@@ -59,7 +59,7 @@ types::SolarSystem SQLiteEveUniverseDatabase::getSolarSystem(
             WHERE ms.solarSystemName = ?;
         )"
        << name >>
-      SolarSystemPopulator(&solarSystem);
+      SolarSystemPopulator(&solarSystem, *this);
   if (!solarSystem.name.isEmpty()) {
     solarSystem.stargates =
         std::move(getSolarSystemStargates(solarSystem.solarSystemId));
@@ -88,42 +88,55 @@ QVariantList SQLiteEveUniverseDatabase::getSolarSystems() {
               ON mc.regionID = mr.regionID
             WHERE ms.constellationID = mc.constellationID;
         )" >>
-      SolarSystemPopulator(&solarSystems);
+      SolarSystemPopulator(&solarSystems, *this);
   return solarSystems;
 }
 
-/*
-  starGateID -> solarSystemID -> solarSystemPos
-  destionationStarGateID -> destinationSolarSystemID ->
-  destinationSolarSystemPos
-*/
-QVector<types::Stargate> SQLiteEveUniverseDatabase::getSolarSystemStargates(
-    types::Id solarSystemId) {
-  QVector<types::Stargate> stargates;
-
+QVariantList SQLiteEveUniverseDatabase::getSolarSystemStargates(
+    types::Id solarSystemId) const {
+  QVariantList stargates;
   *db_ << R"(
             SELECT md.itemID,
                    md.solarSystemID,
-                   md.x, md.y, md.z,
+                   md.x AS gateX,
+                   md.y AS gateY,
+                   md.z AS gateZ,
                    md.itemName,
-                   mj.destinationID
+                   mj.destinationID,
+                   ms.x AS systemX,
+                   ms.y AS systemY,
+                   ms.z AS systemZ,
+                   ms2.x AS destX,
+                   ms2.y AS destY,
+                   ms2.z AS destZ
             FROM mapDenormalize md
             JOIN mapJumps mj
               ON md.itemID = mj.stargateID
-           WHERE md.solarSystemID = ?;
+            JOIN mapSolarSystems ms
+              ON ms.solarSystemID = md.solarSystemID
+            JOIN mapDenormalize md2
+              ON md2.itemID = mj.destinationID
+            JOIN mapSolarSystems ms2
+              ON ms2.solarSystemID = md2.solarSystemID
+           WHERE ms.solarSystemID = ?;  
        )"
        << solarSystemId >>
-      [&](types::Id itemId, types::Id solarSystemId, double x, double y,
-          double z, std::string itemName, types::Id destinationId) {
+      [&](types::Id itemId, types::Id solarSystemId, double gateX, double gateY,
+          double gateZ, std::string itemName, types::Id destinationId,
+          double systemX, double systemY, double systemZ, double destX,
+          double destY, double destZ) {
         types::Stargate newStargate;
         newStargate.name = itemName.c_str(),
-        newStargate.destinationSolarSystemPosition = types::Point(x, y, z),
+        newStargate.position = types::Point(gateX, gateY, gateZ),
         newStargate.solarSystemId = solarSystemId,
         newStargate.stargateId = itemId,
-        newStargate.destinationStargateId = destinationId;
-        stargates.push_back(newStargate);
+        newStargate.destinationStargateId = destinationId,
+        newStargate.solarSystemPosition =
+            types::Point(systemX, systemY, systemZ),
+        newStargate.destinationSolarSystemPosition =
+            types::Point(destX, destY, destZ);
+        stargates.push_back(QVariant::fromValue(std::move(newStargate)));
       };
-
   return stargates;
 }
 
@@ -144,6 +157,7 @@ void SQLiteEveUniverseDatabase::SolarSystemPopulator::operator()(
   newSolarSystem.factionId = factionId;
   newSolarSystem.sunTypeId = sunTypeId;
   newSolarSystem.systemRadius = systemRadius;
+  newSolarSystem.stargates = database.getSolarSystemStargates(solarSystemId);
   if (name.empty()) {
     return;
   } else if (solarSystems) {

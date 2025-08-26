@@ -3,7 +3,7 @@
 
 #include <QtQmlIntegration/qqmlintegration.h>
 #include <QString>
-#include <QVector>
+#include <QVariantList>
 
 #include "common_types.h"
 #include "point.h"
@@ -13,7 +13,6 @@ namespace eve_explorer::types {
 
 class SolarSystem {
   Q_GADGET
-  Q_PROPERTY(QVector<Stargate> stargates WRITE setStargates READ getStargates)
   Q_PROPERTY(QString name MEMBER name)
   Q_PROPERTY(QString regionName MEMBER regionName)
   Q_PROPERTY(QString constellationName MEMBER constellationName)
@@ -33,10 +32,10 @@ class SolarSystem {
   SolarSystem& operator=(const SolarSystem& solarSystem);
   bool operator==(const SolarSystem& solarSystem);
 
-  QVector<Stargate> getStargates();
-  void setStargates(const QVector<Stargate>& stargates);
+  Q_INVOKABLE QVariantList getStargates();
+  void setStargates(const QVariantList& stargates);
 
-  QVector<Stargate> stargates;
+  QVariantList stargates;
   QString name;
   QString regionName;
   QString constellationName;
