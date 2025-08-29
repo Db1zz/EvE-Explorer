@@ -40,6 +40,8 @@ qt_add_qml_module(${PROJECT_NAME}
 	            	URI MyLib
 					QML_FILES
 						qml/main.qml
+						qml/mapSolarSystemObject.qml
+						qml/line.qml
 						SOURCES
 							src/types/point.h
 							src/types/point.cc

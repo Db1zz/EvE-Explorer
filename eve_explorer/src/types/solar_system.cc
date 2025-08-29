@@ -30,11 +30,11 @@ bool SolarSystem::operator==(const SolarSystem& solarSystem) {
   return (name == solarSystem.name);
 }
 
-QVector<Stargate> SolarSystem::getStargates() {
+QVariantList SolarSystem::getStargates() {
   return stargates;
 }
 
-void SolarSystem::setStargates(const QVector<Stargate>& stargates) {
+void SolarSystem::setStargates(const QVariantList& stargates) {
   this->stargates = stargates;
 }
 

@@ -17,6 +17,7 @@ class Stargate {
   Q_PROPERTY(Point solarSystemPosition MEMBER solarSystemPosition)
   Q_PROPERTY(Point destinationSolarSystemPosition MEMBER
                  destinationSolarSystemPosition)
+  Q_PROPERTY(Point position MEMBER position)
   Q_PROPERTY(Id stargateId MEMBER stargateId)
   Q_PROPERTY(Id solarSystemId MEMBER solarSystemId)
   Q_PROPERTY(Id destinationStargateId MEMBER destinationStargateId)
@@ -31,6 +32,7 @@ class Stargate {
   QString name;
   Point solarSystemPosition;
   Point destinationSolarSystemPosition;
+  Point position;
   Id stargateId;
   Id solarSystemId;
   Id destinationStargateId;

@@ -29,17 +29,20 @@ class SQLiteEveUniverseDatabase : public QObject {
 
   Q_INVOKABLE types::SolarSystem getSolarSystem(const QString& name);
   Q_INVOKABLE QVariantList getSolarSystems();
-  Q_INVOKABLE QVector<types::Stargate> getSolarSystemStargates(types::Id solarSystemId);
+  Q_INVOKABLE QVariantList getSolarSystemStargates(types::Id solarSystemId) const;
 
  private:
   struct SolarSystemPopulator {
     QVariantList* solarSystems;
     types::SolarSystem* solarSystem;
+    const SQLiteEveUniverseDatabase& database;
 
-    SolarSystemPopulator(QVariantList* solarSystems)
-        : solarSystems(solarSystems), solarSystem(nullptr) {}
-    SolarSystemPopulator(types::SolarSystem* solarSystem)
-        : solarSystems(nullptr), solarSystem(solarSystem) {}
+    SolarSystemPopulator(QVariantList* solarSystems,
+                         const SQLiteEveUniverseDatabase& database)
+        : solarSystems(solarSystems), solarSystem(nullptr), database(database) {}
+    SolarSystemPopulator(types::SolarSystem* solarSystem,
+                         const SQLiteEveUniverseDatabase& database)
+        : solarSystems(nullptr), solarSystem(solarSystem), database(database) {}
 
     void operator()(std::string name, std::string regionName,
                     std::string constellationName, double x, double y,

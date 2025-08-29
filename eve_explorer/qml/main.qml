@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Window
 import QtQuick.Controls
 import MyLib
+import QtQuick.Shapes
 
 Window {
 	id: mainWindow
@@ -10,86 +11,110 @@ Window {
 	visible: true
 	color: "black"
 
-	Canvas {
-		id: staticEveUniverseMap
-		width: 5000
-		height: 5000
-		visible: false
-		property real offsetX: width / 2
-		property real offsetY: height / 2
-		property real mapScale: 4e-15
-		property bool isPainted: false
-		renderStrategy: Canvas.Threaded
+	Item {
+		id: eveUniverseMap
+		property var systemOffset: 5e-15
+		property real xMapPosNew;
+		property real yMapPosNew;
 
-		onPaint: {
-			var ctx = getContext("2d")
-			drawMap(ctx)
-			isPainted = true
+		transform: Scale {
+			id: mapScale
+			property real xScaleNew;
+			property real yScaleNew;
 		}
 
-		function drawMap(ctx) {
-			ctx.fillStyle = Qt.rgba(200,200,0,255)
-			for (var solarSystem of solarSystems) {
-				ctx.ellipse(
-					solarSystem.position.x * mapScale + offsetX,
-					-solarSystem.position.z * mapScale + offsetY,
-					2, 2)
-			}
-			ctx.fill()
-			mapEveUniverse.requestPaint()
+		ParallelAnimation {
+			id: zoomAnimation
+			property real animationSpeed: 50
+			NumberAnimation {target: mapScale; property: "xScale"; to: mapScale.xScaleNew; duration: zoomAnimation.animationSpeed; easing.type: Easing.Linear}
+			NumberAnimation {target: mapScale; property: "yScale"; to: mapScale.yScaleNew; duration: zoomAnimation.animationSpeed; easing.type: Easing.Linear}
+			NumberAnimation {target: eveUniverseMap; property: "x"; to: eveUniverseMap.xMapPosNew; duration: zoomAnimation.animationSpeed; easing.type: Easing.Linear}
+			NumberAnimation {target: eveUniverseMap; property: "y"; to: eveUniverseMap.yMapPosNew; duration: zoomAnimation.animationSpeed; easing.type: Easing.Linear}
 		}
 
-	}
+		function animateZoom(xScale, yScale, xMapPos, yMapPos) {
+			zoomAnimation.stop();
 
-	Canvas {
-		id: mapEveUniverse
-		width: 5000
-		height: 5000
-		x: -(mainWindow.height / 2)
-		y: -(mainWindow.width / 2)
-		z:0
+			eveUniverseMap.xMapPosNew = xMapPos;
+			eveUniverseMap.yMapPosNew = yMapPos;
 
-		onPaint: {
-			if (staticEveUniverseMap.isPainted) {
-				var ctx = getContext("2d")
-				ctx.reset()
-				ctx.drawImage(staticEveUniverseMap, 0, 0)
-			}
+			mapScale.xScaleNew = xScale;
+			mapScale.yScaleNew = yScale;
+
+			zoomAnimation.start();
 		}
 
 		Component.onCompleted: {
-			staticEveUniverseMap.requestPaint()
+			generateEveUniverseMap();
 		}
 
-		Canvas {
-			id: rndm
-			width:50 
-			height:50
-			property real diameter: 20
-			z:1
+		function generateStargates(solarSystemStargates, solarSystemObject) {
+			for (var solarSystemStargate of solarSystemStargates) {
+				var destPointX = solarSystemStargate.destinationSolarSystemPosition.x * systemOffset;
+				var destPointY = -solarSystemStargate.destinationSolarSystemPosition.z * systemOffset;
 
-			onPaint: {
-				var ctx = getContext("2d")
-				drawClickPoint(ctx);
-			}
-
-			function drawClickPoint(ctx) {
-				ctx.fillStyle = Qt.rgba(255, 255, 255, 255)
-				ctx.ellipse(0, 0, diameter, diameter)
-				ctx.fill()
+				var lineComponent = Qt.createComponent("line.qml");
+				var lineObject = lineComponent.createObject(eveUniverseMap);
+				lineObject.setLine(
+					solarSystemObject.x,
+					solarSystemObject.y,
+					destPointX,
+					destPointY, 
+					solarSystemObject.width,
+					solarSystemObject.height);
 			}
 		}
 
-		MouseArea {
-			anchors.fill: parent
-			drag.target: mapEveUniverse
-			drag.axis: Drag.XAxis | Drag.YAxis
-			onClicked: {
-				rndm.x = mouseX - rndm.diameter / 2
-				rndm.y = mouseY - rndm.diameter / 2
-				rndm.requestPaint()
+		function generateEveUniverseMap() {
+			var solarSystemComponent =  Qt.createComponent("mapSolarSystemObject.qml");
+			var count = 0;
+			for (var ss of solarSystems) {
+				var solarSystemObject = solarSystemComponent.createObject(eveUniverseMap);
+				solarSystemObject.setSystemPosition(ss.position.x * systemOffset, -ss.position.z * systemOffset);
+				solarSystemObject.z = 1;
+				var solarSystemStargates = ss.getStargates();
+				generateStargates(solarSystemStargates, solarSystemObject);
+				if (count == 5430) {
+					break;
+				}
+				++count;
 			}
 		}
 	}
+	MouseArea {
+		id: mouse
+		anchors.fill: parent
+		drag.target: eveUniverseMap
+		drag.axis: Drag.XAxis | Drag.YAxis
+		propagateComposedEvents: true
+		hoverEnabled: true
 
+		Timer {
+			id: timer
+			interval: 55;
+		}
+
+		function delayWheel() {
+			timer.start();
+		}
+
+		onWheel: (wheel)=> {
+			if (timer.running === false) {
+				const zoomStep = wheel.angleDelta.y > 0 ? 1.5 : 0.5;
+				const cursorX = wheel.x;
+				const cursorY = wheel.y;
+				const oldX = (cursorX - eveUniverseMap.x) / mapScale.xScale;
+				const oldY = (cursorY - eveUniverseMap.y) / mapScale.yScale;
+				var xScale = mapScale.xScale * zoomStep;
+				var yScale = mapScale.yScale * zoomStep;
+				var xMapPosNew = cursorX - oldX * xScale;
+				var yMapPosNew = cursorY - oldY * yScale;
+				eveUniverseMap.animateZoom(
+					xScale, yScale,
+					xMapPosNew, yMapPosNew
+				);
+				delayWheel();
+			}
+		}
+	}
 }

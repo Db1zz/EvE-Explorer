@@ -1,5 +1,7 @@
 <RCC>
 	<qresource prefix="/">
 		<file>qml/main.qml</file>
+		<file>qml/mapSolarSystemObject.qml</file>
+		<file>qml/line.qml</file>
 	</qresource>
 </RCC>
