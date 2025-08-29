@@ -50,18 +50,18 @@ Window {
 
 		function generateStargates(solarSystemStargates, solarSystemObject) {
 			for (var solarSystemStargate of solarSystemStargates) {
-				if (!childAt(solarSystemObject.x, solarSystemObject.y)) {
-					continue;
-				}
-				var lineComponent = Qt.createComponent("line.qml");
 				var destPointX = solarSystemStargate.destinationSolarSystemPosition.x * systemOffset;
 				var destPointY = -solarSystemStargate.destinationSolarSystemPosition.z * systemOffset;
+
+				var lineComponent = Qt.createComponent("line.qml");
 				var lineObject = lineComponent.createObject(eveUniverseMap);
 				lineObject.setLine(
 					solarSystemObject.x,
 					solarSystemObject.y,
 					destPointX,
-					destPointY);
+					destPointY, 
+					solarSystemObject.width,
+					solarSystemObject.height);
 			}
 		}
 
@@ -71,6 +71,7 @@ Window {
 			for (var ss of solarSystems) {
 				var solarSystemObject = solarSystemComponent.createObject(eveUniverseMap);
 				solarSystemObject.setSystemPosition(ss.position.x * systemOffset, -ss.position.z * systemOffset);
+				solarSystemObject.z = 1;
 				var solarSystemStargates = ss.getStargates();
 				generateStargates(solarSystemStargates, solarSystemObject);
 				if (count == 5430) {
