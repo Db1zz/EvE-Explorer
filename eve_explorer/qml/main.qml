@@ -87,20 +87,33 @@ Window {
 		drag.axis: Drag.XAxis | Drag.YAxis
 		propagateComposedEvents: true
 		hoverEnabled: true
+
+		Timer {
+			id: timer
+			interval: 55;
+		}
+
+		function delayWheel() {
+			timer.start();
+		}
+
 		onWheel: (wheel)=> {
-            const zoomStep = wheel.angleDelta.y > 0 ? 1.5 : 0.5;
-            const cursorX = wheel.x;
-            const cursorY = wheel.y;
-            const oldX = (cursorX - eveUniverseMap.x) / mapScale.xScale;
-            const oldY = (cursorY - eveUniverseMap.y) / mapScale.yScale;
-			var xScale = mapScale.xScale * zoomStep;
-			var yScale = mapScale.yScale * zoomStep;
-			var xMapPosNew = cursorX - oldX * xScale;
-			var yMapPosNew = cursorY - oldY * yScale;
-			eveUniverseMap.animateZoom(
-				xScale, yScale,
-				xMapPosNew, yMapPosNew
-			);
+			if (timer.running === false) {
+				const zoomStep = wheel.angleDelta.y > 0 ? 1.5 : 0.5;
+				const cursorX = wheel.x;
+				const cursorY = wheel.y;
+				const oldX = (cursorX - eveUniverseMap.x) / mapScale.xScale;
+				const oldY = (cursorY - eveUniverseMap.y) / mapScale.yScale;
+				var xScale = mapScale.xScale * zoomStep;
+				var yScale = mapScale.yScale * zoomStep;
+				var xMapPosNew = cursorX - oldX * xScale;
+				var yMapPosNew = cursorY - oldY * yScale;
+				eveUniverseMap.animateZoom(
+					xScale, yScale,
+					xMapPosNew, yMapPosNew
+				);
+				delayWheel();
+			}
 		}
 	}
 }
