@@ -4,7 +4,7 @@ import QtQuick
 Rectangle {
 	id: line
 	height: 2
-	color: "green"
+	color: "grey"
 
 	function setLine(startX, startY, endX, endY) {
         var dx = endX - startX;
@@ -20,4 +20,3 @@ Rectangle {
 		color: "yellow"
 	}
 }
-
